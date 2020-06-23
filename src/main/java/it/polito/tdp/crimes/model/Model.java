@@ -39,6 +39,13 @@ public class Model {
 		return this.db.listAllDays();
 	}
 	
+	public List<Double> getDistanze(){
+		List<Double> daRitornare = new ArrayList<>();
+		for (DefaultWeightedEdge e : this.graph.edgeSet())
+			daRitornare.add(this.graph.getEdgeWeight(e));
+		return daRitornare;
+	}
+	
 	public void creaGrafo(int year) {
 		this.graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 		for (Integer i : this.db.listAllDistrictId())
@@ -78,14 +85,10 @@ public class Model {
 		return daRitornare;
 	}
 
-	public void simula(Integer anno, Integer mese, Integer giorno, int numeroAgenti) {
+	public int simula(Integer anno, Integer mese, Integer giorno, int numeroAgenti) {
 		List<Event> daConsiderare = new ArrayList<>(this.db.listAllEventsSimulazione(anno, mese, giorno));
-		int daCercare = this.getDistrettoMinoreCriminalita(anno);
-		Distretto minoreCriminalita = null;
-		for (Distretto d : this.listaDistretti)
-			if (d.id == daCercare)
-				minoreCriminalita = d;
-		s = new Simulator(this.graph, daConsiderare, numeroAgenti, d, this.listaDistretti);
+		s = new Simulator(this.graph, daConsiderare, numeroAgenti, this.getDistrettoMinoreCriminalita(anno));
+		return s.getMalGestiti();
 	}
 	
 }

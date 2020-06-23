@@ -11,6 +11,7 @@ public class Evento implements Comparable<Evento>{
 	}
 	
 	EventType type;
+	Event crimine;
 	LocalDateTime tempo;
 	int distretto;
 	public EventType getType() {
@@ -35,10 +36,11 @@ public class Evento implements Comparable<Evento>{
 	public String toString() {
 		return "Evento [type=" + type + ", tempo=" + tempo + ", distretto=" + distretto + "]";
 	}
-	public Evento(EventType type, LocalDateTime tempo, int distretto) {
+	public Evento(EventType type, LocalDateTime tempo, int distretto, Event crimine) {
 		super();
 		this.type = type;
 		this.tempo = tempo;
+		this.crimine = crimine;
 		this.distretto = distretto;
 	}
 	@Override
