@@ -19,12 +19,24 @@ public class Model {
 	SimpleWeightedGraph<Integer, DefaultWeightedEdge> graph;
 	List<Distretto> listaDistretti;
 	
+	//SIMULAZIONE
+	Simulator s;
+	int numeroMalGestiti;
+	
 	public Model() {
 		this.db = new EventsDao();
 	}
 	
 	public List<Integer> getAllYears(){
 		return this.db.listAllYears();
+	}
+	
+	public List<Integer> getAllMonths(){
+		return this.db.listAllMonths();
+	}
+	
+	public List<Integer> getAllDays(){
+		return this.db.listAllDays();
 	}
 	
 	public void creaGrafo(int year) {
@@ -52,6 +64,10 @@ public class Model {
 		return daRitornare;
 	}
 	
+	public Integer getDistrettoMinoreCriminalita(int year) {
+		return this.db.getDistrictMinoreCriminalita(year);
+	}
+	
 	public List<Adiacenza> getAdicenze(int distretto) {
 		List<Adiacenza> daRitornare = new ArrayList<Adiacenza>();
 		for (Integer i : Graphs.neighborListOf(this.graph, distretto)) {
@@ -60,6 +76,16 @@ public class Model {
 		}
 		Collections.sort(daRitornare);
 		return daRitornare;
+	}
+
+	public void simula(Integer anno, Integer mese, Integer giorno, int numeroAgenti) {
+		List<Event> daConsiderare = new ArrayList<>(this.db.listAllEventsSimulazione(anno, mese, giorno));
+		int daCercare = this.getDistrettoMinoreCriminalita(anno);
+		Distretto minoreCriminalita = null;
+		for (Distretto d : this.listaDistretti)
+			if (d.id == daCercare)
+				minoreCriminalita = d;
+		s = new Simulator(this.graph, daConsiderare, numeroAgenti, d, this.listaDistretti);
 	}
 	
 }

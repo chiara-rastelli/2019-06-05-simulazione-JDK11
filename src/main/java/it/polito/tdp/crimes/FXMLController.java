@@ -5,8 +5,11 @@
 package it.polito.tdp.crimes;
 
 import java.net.URL;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Adiacenza;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,10 +31,10 @@ public class FXMLController {
     private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGiorno"
-    private ComboBox<?> boxGiorno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxGiorno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnCreaReteCittadina"
     private Button btnCreaReteCittadina; // Value injected by FXMLLoader
@@ -47,12 +50,51 @@ public class FXMLController {
 
     @FXML
     void doCreaReteCittadina(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	Integer anno = this.boxAnno.getValue();
+    	if (anno == null) {
+    		this.txtResult.setText("Devi scegliere un anno per creare la rete cittadina!\n");
+    		return;
+    	}
+    	model.creaGrafo(anno);
+    	for (int i : model.getDistrettiGrafo()) {
+			this.txtResult.appendText("Distretto "+i+"\n");
+			for (Adiacenza a : model.getAdicenze(i))
+				this.txtResult.appendText(a.toString());
+		}
+    	this.boxGiorno.getItems().addAll(model.getAllDays());
+    	this.boxMese.getItems().addAll(model.getAllMonths());
+    	this.btnSimula.setDisable(false);
     }
 
     @FXML
     void doSimula(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	if (this.boxGiorno.getValue() == null || this.boxMese.getValue() == null) {
+    		this.txtResult.setText("Per poter effettuare una simulazione devi prima scegliere mese e giorno!\n");
+    		return;
+    	}
+    	try {
+    		LocalDate data = LocalDate.of(this.boxAnno.getValue(), this.boxMese.getValue(), this.boxGiorno.getValue());
+    	}catch(DateTimeException e) {
+    		this.txtResult.appendText("Devi selezionare un giorno che sia valido per il mese e l'anno corrispondenti!\n");
+    		return;
+    	}
+    	
+    	int N = 0;
+    	try {
+    		N = Integer.parseInt(this.txtN.getText());
+    	}catch(NumberFormatException e) {
+    		this.txtResult.setText("Devi inserire un valore N per la simulazione che sia un intero!\n");
+    		return;
+    	}
+    	
+    	if (N <= 0 || N > 10) {
+    		this.txtResult.setText("Il valore di N per la simulazione deve essere compreso tra 1 e 10!\n");
+    		return;
+    	}
+    	
+    	model.simula(this.boxAnno.getValue(), this.boxMese.getValue(), this.boxGiorno.getValue(), N);
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -70,5 +112,6 @@ public class FXMLController {
     public void setModel(Model model) {
     	this.model = model;
     	this.boxAnno.getItems().addAll(this.model.getAllYears());
+    	this.btnSimula.setDisable(true);
     }
 }
